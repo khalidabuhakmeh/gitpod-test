@@ -1,0 +1,14 @@
+tasks:
+  - init: |      
+      wget https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh -P /workspace/
+      chmod +x /workspace/dotnet-install.sh
+      /workspace/dotnet-install.sh -v 6.0.100-rc.2.21505.57 --install-dir /workspace/.dotnet
+      docker pull mcr.microsoft.com/mssql/server:2019-latest
+    command: |
+      echo 'export PATH=/workspace/.dotnet:$PATH' >> ~/.bashrc
+      source ~/.bashrc
+      dotnet --list-sdks
+      docker run -e 'ACCEPT_EULA=Y' -e "SA_PASSWORD=Pass123!" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2019-latest
+      dotnet restore
+      dotnet ef database update
+      dotnet run
